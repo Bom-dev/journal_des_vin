@@ -1,12 +1,83 @@
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text } from 'react-native';
+import { Button, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import axios from 'axios';
 
-const Stack = createNativeStackNavigator();
+function WineScreen({ navigation }) {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Wine screen</Text>
+      <Button
+        title="Go to Details"
+        onPress={() => navigation.navigate('WineDetails')}
+      />
+    </View>
+  );
+}
 
-const App = () => {
+function WineDetailsScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Details!</Text>
+    </View>
+  );
+}
+
+function WinemakerScreen({ navigation }) {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Winemaker screen</Text>
+      <Button
+        title="Go to Details"
+        onPress={() => navigation.navigate('WinemakerDetails')}
+      />
+    </View>
+  );
+}
+
+function WinemakerDetailsScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Details!</Text>
+    </View>
+  );
+}
+
+function HomeStackScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Welcome to my App!</Text>
+    </View>
+  );
+}
+
+const WineStack = createNativeStackNavigator();
+
+function WineStackScreen() {
+  return (
+    <WineStack.Navigator>
+      <WineStack.Screen name="List" component={WineScreen} />
+      <WineStack.Screen name="Details" component={WineDetailsScreen} />
+    </WineStack.Navigator>
+  );
+}
+
+const WinemakerStack = createNativeStackNavigator();
+
+function WinemakerStackScreen() {
+  return (
+    <WinemakerStack.Navigator>
+      <WinemakerStack.Screen name="List" component={WinemakerScreen} />
+      <WinemakerStack.Screen name="Details" component={WinemakerDetailsScreen} />
+    </WinemakerStack.Navigator>
+  );
+}
+
+const Tab = createBottomTabNavigator();
+
+export default function App() {
 
   const [allWine, setAllWine] = useState([])
   const [allWinemaker, setAllWinemaker] = useState([])
@@ -29,68 +100,14 @@ const App = () => {
     getAllWine()
     getAllWinemaker()
   }, [])
-  
-  function Home({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Home Screen</Text>
-        <Button title="Browse Wines" onPress={() => navigation.navigate('WineList')} />
-        <Button title="Browse Winemakers" onPress={() => navigation.navigate('WinemakerList')} />
-      </View>
-    );
-  }
-  
-  function WineList({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Wine List</Text>
-        <Button title="Wine Detail" onPress={() => navigation.navigate('WineDetail')} />
-        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      </View>
-    );
-  }
-  
-  function WineDetail({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Wine Detail</Text>
-        <Button title="Back to List" onPress={() => navigation.navigate('WineList')} />
-        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      </View>
-    );
-  }
-  
-  function WinemakerList({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Winemaker List</Text>
-        <Button title="Winemaker Detail" onPress={() => navigation.navigate('WinemakerDetail')} />
-        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      </View>
-    );
-  }
-  
-  function WinemakerDetail({ navigation }) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Winemaker Detail</Text>
-        <Button title="Back to List" onPress={() => navigation.navigate('WinemakerList')} />
-        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      </View>
-    );
-  }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={Home} options={{ title: 'Home' }} />
-        <Stack.Screen name="WineList" component={WineList} options={{ title: 'Wines' }} />
-        <Stack.Screen name="WineDetail" component={WineDetail} options={{title: 'Wine Detail'}} />
-        <Stack.Screen name="WinemakerList" component={WinemakerList} options={{ title: 'Winemakers'}} />
-        <Stack.Screen name="WinemakerDetail" component={WinemakerDetail} options={{title: 'Winemaker Detail'}} />
-      </Stack.Navigator>
+      <Tab.Navigator>
+        <Tab.Screen name="Home" component={HomeStackScreen} />
+        <Tab.Screen name="Wine" component={WineStackScreen} />
+        <Tab.Screen name="Winemaker" component={WinemakerStackScreen} />
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
-
-export default App;
