@@ -10,9 +10,9 @@ export default function App() {
 
   const [allWine, setAllWine] = useState([])
   const [wine, setWine] = useState([])
-  const [wines, setWines] = useState([])
   const [allWinemaker, setAllWinemaker] = useState([])
-  const [winemaker, setWinemaker] = useState([])
+  const [winemaker, setWinemaker] = useState({})
+  const [winemakerWine, setWinemakerWine] = useState([])
   const [fav, setFav] = useState([])
 
   const getAllWine = () => {
@@ -45,14 +45,13 @@ export default function App() {
 
   const handleFaveToggle = (wineKey) => {
     const faves = fav.slice()
-    const index = faves.indexOf(wine)
+    const index = faves.indexOf(wineKey)
     if (index > -1) {
       faves.splice(index, 1)
     } else {
-      faves.push(wine)
+      faves.push(wineKey)
     }
     setFav(faves)
-    console.log(fav)
   }
 
   useEffect(() => {
@@ -89,7 +88,7 @@ export default function App() {
         <Text>{wine.grape}</Text>
         <Text>{wine.country}</Text>
         <Button title='Buy This' onPress={() => Linking.openURL(`${wine.link}`)} />
-        <Button title={fav.includes(wine) ? 'Unselect' : 'Select'} onPress={() => {
+        <Button title={fav.includes(wine.id) ? 'Unselect' : 'Select'} onPress={() => {
           const wineKey = wine.id
           handleFaveToggle(wineKey)
         }} />
@@ -116,36 +115,28 @@ export default function App() {
     );
   }
   
-  function WinemakerDetailsScreen() {
-    console.log(winemaker.wines)
+   function WinemakerDetailsScreen() {
 
-    // let makersWine = winemaker.wines.map(item => {
-    //   axios.get(`${item}`)
-    //   .then((r) => {
-    //     console.log(r.data)
-    //     // setWines(r.data)
-    //   })
-      // .then(
-      //   console.log(wines)
-      //   wines.map(item => {
-      //     return (
-      //       <View>
-      //         <Text>{item.name}</Text>
-      //       </View>
-      //     )
-      //   })
-      // )
-    // })
+    console.log(winemaker)
 
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>{winemaker.name}</Text>
-        <Text>{winemaker.location}</Text>
-        <Text>{winemaker.description}</Text>
-        {/* <Text>{makersWine}</Text> */}
-      </View>
-    );
+    if (winemaker) {
+      let wineList = winemaker.wines.map(item => {
+        return (
+          <Button title={item.name} key={item.link} />
+        )
+      })
+  
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>{winemaker.name}</Text>
+          <Text>{winemaker.location}</Text>
+          <Text>{winemaker.description}</Text>
+          <Text>{wineList}</Text>
+        </View>
+      );
+    }
   }
+
   
   function HomeStackScreen() {
 
@@ -156,8 +147,35 @@ export default function App() {
     );
   }
 
-  function FavoriteScreen() {
+  function FavoriteScreen({ navigation }) {
 
+    if (fav.length > 0) {
+
+        const favs = fav.map(item => {
+          axios.get(`https://journal-des-vin.herokuapp.com/wines/${item}`)
+          .then((r) => {
+            console.log(r.data.name)
+            return (
+              <View>
+                <Button title={r.data.name} key={r.data.id} onPress={() => {
+                  const key = r.data.id
+                  navigation.navigate('Wine Details')
+                  getWineDetail(key)
+                }} />
+              </View>
+            )
+          })
+        })
+
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Favorite ({fav.length})</Text>
+          <View>{favs}</View>
+        </View>
+      )
+    }
+
+    else 
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Select your favorite bottle!</Text>
@@ -190,7 +208,7 @@ export default function App() {
   }
 
   return (
-    
+
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen name="Home" component={HomeStackScreen} />
