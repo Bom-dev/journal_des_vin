@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Text, View } from 'react-native';
+import { Button, Text, View, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -10,7 +10,7 @@ export default function App() {
 
   const [allWine, setAllWine] = useState([])
   const [allWinemaker, setAllWinemaker] = useState([])
-  const [key, setKey] = useState([])
+  const [wine, setWine] = useState([])
   const [winemaker, setWinemaker] = useState([])
   const [fav, setFav] = useState([])
 
@@ -29,11 +29,17 @@ export default function App() {
   }
 
   const getWineDetail = (key) => {
-    // axios.get(`https://journal-des-vin.herokuapp.com/wines/${key}`)
-    // .then((r) => {
-    //   setWine(r.data)
-    // })
-    console.log(key)
+    axios.get(`https://journal-des-vin.herokuapp.com/wines/${key}`)
+    .then((r) => {
+      setWine(r.data)
+    })
+  }
+
+  const getWinemakerDetail = (key) => {
+    axios.get(`https://journal-des-vin.herokuapp.com/winemakers/${key}`)
+    .then((r) => {
+      setWinemaker(r.data)
+    })
   }
 
   useEffect(() => {
@@ -45,7 +51,8 @@ export default function App() {
     
     let wineList = allWine.map(item => {
       return (
-        <Button title={item.name} key={item.id} onPress={(key) => {
+        <Button title={item.name} key={item.id} onPress={() => {
+          const key = item.id
           navigation.navigate('Wine Details')
           getWineDetail(key)
         }} />
@@ -60,10 +67,10 @@ export default function App() {
   }
   
   function WineDetailsScreen() {
-    console.log(key)
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Wine Detail</Text>
+        <Text>{wine.name}</Text>
+        <Image source={{uri: `{wine.label}`}} />
       </View>
     );
   }
@@ -72,7 +79,11 @@ export default function App() {
 
     let winemakerList = allWinemaker.map(item => {
       return (
-        <Button title={item.name} key={item.id} onPress={() => navigation.navigate('Winemaker Details')}/>
+        <Button title={item.name} key={item.id} onPress={() => {
+          const key = item.id
+          navigation.navigate('Winemaker Details')
+          getWinemakerDetail(key)
+        }} />
       )
     })
 
@@ -86,7 +97,8 @@ export default function App() {
   function WinemakerDetailsScreen() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Details!</Text>
+        <Text>{winemaker.name}</Text>
+        <Image source={{uri: `{winemaker.label}`}} />
       </View>
     );
   }
