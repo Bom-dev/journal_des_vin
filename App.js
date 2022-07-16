@@ -3,6 +3,8 @@ import { Button, Text, View, Image, Linking } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { List } from 'react-native-paper';
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
 
 
@@ -12,32 +14,31 @@ export default function App() {
   const [wine, setWine] = useState([])
   const [allWinemaker, setAllWinemaker] = useState([])
   const [winemaker, setWinemaker] = useState({})
-  const [winemakerWine, setWinemakerWine] = useState([])
   const [fav, setFav] = useState([])
 
-  const getAllWine = () => {
-    axios.get(`https://journal-des-vin.herokuapp.com/wines/`)
+  const getAllWine = async () => {
+    await axios.get(`https://journal-des-vin.herokuapp.com/wines/`)
     .then((r) => {
       setAllWine(r.data)
     })
   }
 
-  const getAllWinemaker = () => {
-    axios.get(`https://journal-des-vin.herokuapp.com/winemakers/`)
+  const getAllWinemaker = async () => {
+    await axios.get(`https://journal-des-vin.herokuapp.com/winemakers/`)
     .then((r) => {
       setAllWinemaker(r.data)
     })
   }
 
-  const getWineDetail = (key) => {
-    axios.get(`https://journal-des-vin.herokuapp.com/wines/${key}`)
+  const getWineDetail = async (key) => {
+    await axios.get(`https://journal-des-vin.herokuapp.com/wines/${key}`)
     .then((r) => {
       setWine(r.data)
     })
   }
 
-  const getWinemakerDetail = (key) => {
-    axios.get(`https://journal-des-vin.herokuapp.com/winemakers/${key}`)
+  const getWinemakerDetail = async (key) => {
+    await axios.get(`https://journal-des-vin.herokuapp.com/winemakers/${key}`)
     .then((r) => {
       setWinemaker(r.data)
     })
@@ -78,15 +79,20 @@ export default function App() {
     );
   }
   
-  function WineDetailsScreen() {
+  function WineDetailsScreen({ navigation }) {
 
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Image source={{ uri: `${wine.label}` }} style={{ width: 150, height: 150 }} />
         <Text>{wine.name}</Text>
-        <Text>$ {wine.price}</Text>
-        <Text>{wine.grape}</Text>
-        <Text>{wine.country}</Text>
+        <Text>${wine.price}</Text>
+        <Text>Varietal: {wine.grape}</Text>
+        <Text>Region: {wine.country}</Text>
+        <Button title={wine.winemaker.name} onPress={() => {
+          const winemakerkey = wine.winemaker.id
+          navigation.navigate('Winemaker Details')
+          getWinemakerDetail(winemakerkey)
+        }}/>
         <Button title='Buy This' onPress={() => Linking.openURL(`${wine.link}`)} />
         <Button title={fav.includes(wine.id) ? 'Unselect' : 'Select'} onPress={() => {
           const wineKey = wine.id
@@ -115,26 +121,15 @@ export default function App() {
     );
   }
   
-   function WinemakerDetailsScreen() {
+   const WinemakerDetailsScreen = () => {
 
-    console.log(winemaker)
-
-    if (winemaker) {
-      let wineList = winemaker.wines.map(item => {
-        return (
-          <Button title={item.name} key={item.link} />
-        )
-      })
-  
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text>{winemaker.name}</Text>
           <Text>{winemaker.location}</Text>
           <Text>{winemaker.description}</Text>
-          <Text>{wineList}</Text>
         </View>
       );
-    }
   }
 
   
