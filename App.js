@@ -93,20 +93,22 @@ export default function App() {
               }}>
                 <Image source={{ uri: `${wine.label}` }} style={styles.img} />
           </View>
+          <Text>{"\n"}</Text>
           <Text style={styles.title}>{wine.name}</Text>
-          <Text style={styles.subTitle}>{wine.grape} from {wine.country}</Text>
-          <Text style={styles.tinyText}>${wine.price}</Text>
+          <Text style={styles.tinyText}>{wine.grape} from {wine.country}</Text>
           {/* <Button title={wine.winemaker.name} onPress={() => {
             const winemakerkey = wine.winemaker.id
             navigation.navigate('Winemaker Details')
             getWinemakerDetail(winemakerkey)
           }}/> */}
+          <Text>{"\n"}</Text>
           <Pressable onPress={() => Linking.openURL(`${wine.link}`)} style={styles.list}>
             <Text style={styles.listText}>Buy This</Text>
           </Pressable>
           <Pressable onPress={() => handleFaveToggle(wine.id)} style={styles.list}>
-            <Text style={styles.listText}><Ionicons name={fav.includes(wine.id) ? 'ios-star' : 'ios-star-outline'} size={20} color='#523'/></Text>
+            <Text style={styles.listText}><Ionicons name={fav.includes(wine.id) ? 'ios-star' : 'ios-star-outline'} size={20} color='#fff'/></Text>
           </Pressable>
+          <View style = {styles.divider} />
         </ScrollView>
       </View>
     );
@@ -143,6 +145,7 @@ export default function App() {
           <ScrollView>
             <Text style={styles.title}>{winemaker.name}</Text>
             <Text style={styles.subTitle}>{winemaker.location}</Text>
+            <View style = {styles.divider} />
             <Text style={styles.tinyText}>{winemaker.description}</Text>
             {/* <Button title={winemaker.wines[0].name} onPress={() => {
                     navigation.navigate('Wine Details')
@@ -158,6 +161,7 @@ export default function App() {
 
     return (
       <View style={styles.container}>
+        <Ionicons name={'ios-wine'} size={50} color='#fff' />
         <Text style={styles.landingTitle}>Journal{"\n"}Des{"\n"}Vin</Text>
         <Text style={styles.tinyText}>: Browse wines and wineries list</Text>
       </View>
@@ -244,7 +248,7 @@ export default function App() {
             }
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: '#937',
+          tabBarActiveTintColor: '#b483ac',
           tabBarInactiveTintColor: '#888',
         })}
       >
@@ -263,12 +267,12 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 50,
     flex: 1,
-    backgroundColor: '#523',
+    backgroundColor: '#c9b1d0',
     justifyContent: 'center',
     alignItems: 'center',
   },
   list: {
-    backgroundColor: '#937',
+    backgroundColor: '#b483ac',
     marginBottom: 10,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -281,18 +285,18 @@ const styles = StyleSheet.create({
   listText: {
     color: "white",
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "800",
     textAlign: "center",
     letterSpacing: 0.25,
   },
   landingTitle: {
     fontSize: 80,
-    fontWeight: "600",
+    fontWeight: "800",
     color: "white",
   },
   title: {
     fontSize: 40,
-    fontWeight: "600",
+    fontWeight: "800",
     color: "white",
     textAlign: "center",
   },
@@ -308,15 +312,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   tinyText: {
-    marginTop: -5,
-    marginBottom: 20,
-    fontSize: 20,
+    fontSize: 17,
     color: "white",
-    fontWeight: "500",
-    marginTop: 20,
+    fontWeight: "300",
+    margin: 20,
+    letterSpacing: 2,
   },
   img: { 
     width: 250,
     height: 250, 
-  }
+  },
+  divider: {
+    borderWidth: 0.75,
+    borderColor: '#fff',
+    marginTop: 25,
+}
 })
