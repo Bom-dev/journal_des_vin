@@ -248,7 +248,7 @@ export default function App() {
             }
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: '#b483ac',
+          tabBarActiveTintColor: '#A26769',
           tabBarInactiveTintColor: '#888',
         })}
       >
@@ -261,29 +261,31 @@ export default function App() {
   );
 }
 
-// style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+// '#6D2E46' , '#A26769' , '#D5B9B2' , '#ECE2D0'
 
 const styles = StyleSheet.create({
   container: {
     paddingTop: 50,
     flex: 1,
-    backgroundColor: '#c9b1d0',
+    backgroundColor: '#6D2E46',
     justifyContent: 'center',
     alignItems: 'center',
   },
   list: {
-    backgroundColor: '#b483ac',
+    backgroundColor: '#6D2E46',
+    borderWidth: 0.75,
+    borderColor: '#FFF',
     marginBottom: 10,
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 5,
+    borderRadius: 3,
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
     elevation: 3,
   },
   listText: {
-    color: "white",
+    color: '#FFF',
     fontSize: 18,
     fontWeight: "800",
     textAlign: "center",
@@ -292,28 +294,28 @@ const styles = StyleSheet.create({
   landingTitle: {
     fontSize: 80,
     fontWeight: "800",
-    color: "white",
+    color: '#FFF',
   },
   title: {
     fontSize: 40,
     fontWeight: "800",
-    color: "white",
+    color: '#FFF',
     textAlign: "center",
   },
   mainText: {
-    fontWeight: "600",
-    fontSize: 50,
-    color: "white",
+    fontWeight: "700",
+    fontSize: 40,
+    color: '#FFF',
   },
   subTitle: {
     fontSize: 30,
-    color: "white",
+    color: '#ECE2D0',
     fontWeight: "500",
     textAlign: "center",
   },
   tinyText: {
     fontSize: 17,
-    color: "white",
+    color: '#FFF',
     fontWeight: "300",
     margin: 20,
     letterSpacing: 2,
@@ -324,7 +326,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     borderWidth: 0.75,
-    borderColor: '#fff',
+    borderColor: '#FFF',
     marginTop: 25,
 }
 })
