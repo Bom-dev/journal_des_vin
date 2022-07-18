@@ -4,9 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons'
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
 
+const FAVORITE = "@fav"
 
 export default function App() {
 
@@ -16,11 +17,23 @@ export default function App() {
   const [winemaker, setWinemaker] = useState({})
   const [fav, setFav] = useState([])
 
+  const saveFav = async (toSave) => {
+    await AsyncStorage.setItem(FAVORITE, JSON.stringify(toSave));
+  };
+
+  const loadFav = async () => {
+    const ready = await AsyncStorage.getItem(FAVORITE)
+    if (ready) {
+      setFav(JSON.parse(ready))
+    }
+  }
+
   const getAllWine = async () => {
     await axios.get(`https://journal-des-vin.herokuapp.com/wines/`)
     .then((r) => {
       setAllWine(r.data)
     })
+    await AsyncStorage.setItem('allWine', JSON.stringify(allWine))
   }
 
   const getAllWinemaker = async () => {
@@ -28,6 +41,7 @@ export default function App() {
     .then((r) => {
       setAllWinemaker(r.data)
     })
+    await AsyncStorage.setItem('allWinemaker', JSON.stringify(allWinemaker))
   }
 
   const getWineDetail = async (key) => {
@@ -44,7 +58,7 @@ export default function App() {
     })
   }
 
-  const handleFaveToggle = (wineKey) => {
+  const handleFaveToggle = async (wineKey) => {
     const faves = fav.slice()
     const index = faves.indexOf(wineKey)
     if (index > -1) {
@@ -53,11 +67,13 @@ export default function App() {
       faves.push(wineKey)
     }
     setFav(faves)
+    await saveFav(faves)
   }
 
   useEffect(() => {
     getAllWine()
     getAllWinemaker()
+    loadFav()
   }, [])
 
   function WineScreen({ navigation }) {
@@ -96,11 +112,15 @@ export default function App() {
           <Text>{"\n"}</Text>
           <Text style={styles.title}>{wine.name}</Text>
           <Text style={styles.tinyText}>{wine.grape} from {wine.country}</Text>
-          {/* <Button title={wine.winemaker.name} onPress={() => {
+          {/* <Pressable style={styles.list} onPress={() => {
             const winemakerkey = wine.winemaker.id
             navigation.navigate('Winemaker Details')
             getWinemakerDetail(winemakerkey)
-          }}/> */}
+          }}>
+            <Text style={styles.listText}>
+              from {wine.winemaker.name}
+            </Text>
+          </Pressable> */}
           <Text>{"\n"}</Text>
           <Pressable onPress={() => Linking.openURL(`${wine.link}`)} style={styles.list}>
             <Text style={styles.listText}>Buy This</Text>
@@ -145,12 +165,16 @@ export default function App() {
           <ScrollView>
             <Text style={styles.title}>{winemaker.name}</Text>
             <Text style={styles.subTitle}>{winemaker.location}</Text>
-            <View style = {styles.divider} />
+            <View style={styles.divider} />
             <Text style={styles.tinyText}>{winemaker.description}</Text>
-            {/* <Button title={winemaker.wines[0].name} onPress={() => {
+            {/* <Pressable style={styles.list} onPress={() => {
                     navigation.navigate('Wine Details')
                     getWineDetail(winemaker.wines[0].id)
-                  }} /> */}
+                  }}>
+              <Text style={styles.listText}>
+                {winemaker.wines[0].name}
+              </Text>
+            </Pressable> */}
           </ScrollView>
         </View>
       );
@@ -173,21 +197,26 @@ export default function App() {
     if (fav.length > 0) {
 
         const favs = fav.map(item => {
-            return (
-              <Pressable style={styles.list} key={item.name} onPress={() => {
-                navigation.navigate('Wine Details')
-                getWineDetail(item.id)
+          for (let i = 0; i < allWine.length ; i++) {
+            if (allWine[i].id === item) {
+              return (
+              <Pressable style={styles.list} key={allWine[i].name} onPress={() => {
+                navigation.navigate('Favorite Details')
+                getWineDetail(allWine[i].id)
               }}>
                 <Text style={styles.listText}>
-                  {item.name}
+                  {allWine[i].name}
                 </Text>
               </Pressable>
-            )
+              )
+            }
+          }
         })
 
       return (
         <View style={styles.container}>
           <Text style={styles.mainText}>Favorite ({fav.length})</Text>
+          <Text>{"\n"}</Text>
           <View>{favs}</View>
         </View>
       )
@@ -201,9 +230,46 @@ export default function App() {
       </View>
     )
   }
+
+  function FavoriteDetailsScreen({ navigation }) {
+
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+          <View style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <Image source={{ uri: `${wine.label}` }} style={styles.img} />
+          </View>
+          <Text>{"\n"}</Text>
+          <Text style={styles.title}>{wine.name}</Text>
+          <Text style={styles.tinyText}>{wine.grape} from {wine.country}</Text>
+          {/* <Pressable style={styles.list} onPress={() => {
+            const winemakerkey = wine.winemaker.id
+            navigation.navigate('Winemaker Details')
+            getWinemakerDetail(winemakerkey)
+          }}>
+            <Text style={styles.listText}>
+              from {wine.winemaker.name}
+            </Text>
+          </Pressable> */}
+          <Text>{"\n"}</Text>
+          <Pressable onPress={() => Linking.openURL(`${wine.link}`)} style={styles.list}>
+            <Text style={styles.listText}>Buy This</Text>
+          </Pressable>
+          <Pressable onPress={() => handleFaveToggle(wine.id)} style={styles.list}>
+            <Text style={styles.listText}><Ionicons name={fav.includes(wine.id) ? 'ios-star' : 'ios-star-outline'} size={20} color='#fff'/></Text>
+          </Pressable>
+          <View style = {styles.divider} />
+        </ScrollView>
+      </View>
+    );
+  }
   
   const WineStack = createNativeStackNavigator();
   const WinemakerStack = createNativeStackNavigator();
+  const FavoriteStack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
   
   function WineStackScreen() {
@@ -223,6 +289,16 @@ export default function App() {
         <WinemakerStack.Screen name="Winemaker List" component={WinemakerScreen} />
         <WinemakerStack.Screen name="Winemaker Details" component={WinemakerDetailsScreen} />
       </WinemakerStack.Navigator>
+    );
+  }
+
+  function FavoriteStackScreen() {
+ 
+    return (
+      <FavoriteStack.Navigator>
+        <FavoriteStack.Screen name="Favorite List" component={FavoriteScreen} />
+        <FavoriteStack.Screen name="Favorite Details" component={FavoriteDetailsScreen} />
+      </FavoriteStack.Navigator>
     );
   }
 
@@ -255,7 +331,7 @@ export default function App() {
         <Tab.Screen name="Home" component={HomeStackScreen} />
         <Tab.Screen name="Wine" component={WineStackScreen} />
         <Tab.Screen name="Winemaker" component={WinemakerStackScreen} />
-        <Tab.Screen name="Favorite" component={FavoriteScreen} />
+        <Tab.Screen name="Favorite" component={FavoriteStackScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
