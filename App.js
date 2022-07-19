@@ -16,7 +16,6 @@ export default function App() {
   const [allWinemaker, setAllWinemaker] = useState([])
   const [winemaker, setWinemaker] = useState({})
   const [fav, setFav] = useState([])
-  const [recomm, setRecomm] = useState([])
   const [type, setType] = useState('')
   const [varietal, setVarietal] = useState('')
   const [region, setRegion] = useState('')
@@ -59,18 +58,6 @@ export default function App() {
     await axios.get(`https://journal-des-vin.herokuapp.com/winemakers/${key}`)
     .then((r) => {
       setWinemaker(r.data)
-    })
-  }
-
-  const getRecomm = async (key) => {
-    let k = allWine.map(item => {
-      if (item.name = key) {
-        return item.id
-      }
-    })
-    await axios.get(`https://journal-des-vin.herokuapp.com/wines/${k}`)
-    .then((r) => {
-      setRecomm(r.data)
     })
   }
 
@@ -247,8 +234,8 @@ export default function App() {
 
     let varietalList = []
 
-    const typedVarietal = allWine.map(item => {
-      if ((item.type = type) && (!varietalList.includes(item.grape))) {
+    allWine.map(item => {
+      if ((item.type == type) && (!varietalList.includes(item.grape))) {
           varietalList.push(item.grape)
         }
     })
@@ -279,8 +266,8 @@ export default function App() {
 
     let regionList = []
 
-    const allRegion = allWine.map(item => {
-      if ((item.type = type) && (item.varietal = varietal) && (!regionList.includes(item.country))) {
+    allWine.map(item => {
+      if ((item.type == type) && (item.grape == varietal) && (!regionList.includes(item.country))) {
           regionList.push(item.country) 
         }
     })
@@ -296,8 +283,6 @@ export default function App() {
       )
     })
 
-    // console.log(type, varietal, region)
-
     return (
       <View style={styles.container}>
         <ScrollView>
@@ -312,20 +297,26 @@ export default function App() {
   function ResultScreen({ navigation }) {
 
     let nameList = []
+    let keyword = []
 
-    const allName = allWine.map(item => {
-      if ((item.type = type) && (item.varietal = varietal) && (item.region = region) && (!nameList.includes(item.name))) {
+    allWine.map(item => {
+      if ((item.type == type) && (item.grape == varietal) && (item.country == region) && (!nameList.includes(item.name))) {
           nameList.push(item.name) 
         }
     })
 
     const names = nameList.map(name => {
 
+      allWine.map(item => {
+        if (item.name === name) {
+          keyword.push(item.id)
+        } 
+      })
+
       return (
         <Pressable style={styles.list} key={`${name}1`} onPress={() => {
           navigation.navigate('Recommendation')
-          getRecomm(name)
-          console.log(recomm)
+          getWineDetail(keyword)
         }}>
           <Text style={styles.listText}>{name}</Text>
         </Pressable>
@@ -344,6 +335,7 @@ export default function App() {
   }
 
   function RecommendationScreen({ navigation }) {
+   
 
     return (
       <View style={styles.container}>
@@ -352,18 +344,18 @@ export default function App() {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-                <Image source={{ uri: `${recomm.label}` }} style={styles.img} />
+                <Image source={{ uri: `${wine.label}` }} style={styles.img} />
           </View>
           <Text>{"\n"}</Text>
-          <Text style={styles.title}>{recomm.name}</Text>
-          <Text style={styles.subTitle}>$ {recomm.price}</Text>
-          <Text style={styles.tinyText}>{recomm.grape} from {recomm.country}</Text>
+          <Text style={styles.title}>{wine.name}</Text>
+          <Text style={styles.subTitle}>$ {wine.price}</Text>
+          <Text style={styles.tinyText}>{wine.grape} from {wine.country}</Text>
           <Text>{"\n"}</Text>
-          <Pressable onPress={() => Linking.openURL(`${recomm.link}`)} style={styles.list}>
+          <Pressable onPress={() => Linking.openURL(`${wine.link}`)} style={styles.list}>
             <Text style={styles.listText}>Buy This</Text>
           </Pressable>
-          <Pressable onPress={() => handleFaveToggle(recomm.id)} style={styles.list}>
-            <Text style={styles.listText}><Ionicons name={fav.includes(recomm.id) ? 'ios-star' : 'ios-star-outline'} size={20} color='#fff'/></Text>
+          <Pressable onPress={() => handleFaveToggle(wine.id)} style={styles.list}>
+            <Text style={styles.listText}><Ionicons name={fav.includes(wine.id) ? 'ios-star' : 'ios-star-outline'} size={20} color='#fff'/></Text>
           </Pressable>
           <View style = {styles.divider} />
         </ScrollView>
