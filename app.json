@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "journal_des_vin",
+    "name": "Journal_Des_Vin",
     "slug": "journal_des_vin",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -28,6 +28,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "",
+    "githubUrl": "https://github.com/Bom-dev/journal_des_vin"
   }
 }

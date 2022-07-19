@@ -9,7 +9,7 @@ This is a wine cellar on your phone. It displays the whole list from the databas
 - [Backend Repo](https://github.com/Bom-dev/journal_des_vin_back)
 - [Backend Link](https://journal-des-vin.herokuapp.com/)
 - [Frontend Repo](https://github.com/Bom-dev/journal_des_vin)
-- [Frontend Link]()
+- [Frontend Link](https://expo.dev/%40bom_dev/journal_des_vin?serviceType=classic&distribution=expo-go&releaseChannel=default)
 
 ## Technologies
 
