@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Text, View, Image, Linking, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { Text, View, Image, Linking, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,6 +16,10 @@ export default function App() {
   const [allWinemaker, setAllWinemaker] = useState([])
   const [winemaker, setWinemaker] = useState({})
   const [fav, setFav] = useState([])
+  const [recomm, setRecomm] = useState([])
+  const [type, setType] = useState('')
+  const [varietal, setVarietal] = useState('')
+  const [region, setRegion] = useState('')
 
   const saveFav = async (toSave) => {
     await AsyncStorage.setItem(FAVORITE, JSON.stringify(toSave));
@@ -55,6 +59,18 @@ export default function App() {
     await axios.get(`https://journal-des-vin.herokuapp.com/winemakers/${key}`)
     .then((r) => {
       setWinemaker(r.data)
+    })
+  }
+
+  const getRecomm = async (key) => {
+    let k = allWine.map(item => {
+      if (item.name = key) {
+        return item.id
+      }
+    })
+    await axios.get(`https://journal-des-vin.herokuapp.com/wines/${k}`)
+    .then((r) => {
+      setRecomm(r.data)
     })
   }
 
@@ -111,6 +127,7 @@ export default function App() {
           </View>
           <Text>{"\n"}</Text>
           <Text style={styles.title}>{wine.name}</Text>
+          <Text style={styles.subTitle}>$ {wine.price}</Text>
           <Text style={styles.tinyText}>{wine.grape} from {wine.country}</Text>
           {/* <Pressable style={styles.list} onPress={() => {
             const winemakerkey = wine.winemaker.id
@@ -158,8 +175,6 @@ export default function App() {
   
    const WinemakerDetailsScreen = ({ navigation }) => {
 
-    // console.log(winemaker.wines[0].name)
-
       return (
         <View style={styles.container}>
           <ScrollView>
@@ -181,13 +196,177 @@ export default function App() {
   }
 
   
-  function HomeStackScreen() {
+  function HomeScreen({ navigation }) {
 
     return (
       <View style={styles.container}>
         <Ionicons name={'ios-wine'} size={50} color='#fff' />
         <Text style={styles.landingTitle}>Journal{"\n"}Des{"\n"}Vin</Text>
-        <Text style={styles.tinyText}>: Browse wines and wineries list</Text>
+        <Text>{"\n"}</Text>
+        <Pressable style={styles.list} onPress={() => {
+            navigation.navigate('Type')
+        }}>
+          <Text style={styles.listText}>Get Recommendation</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  function TypeScreen({ navigation }) {
+
+    let typeList = []
+
+    const allTypes = allWine.map(item => {
+      if (!typeList.includes(item.type))
+        typeList.push(item.type) 
+    })
+
+    const types = typeList.map(aType => {
+      return (
+        <Pressable style={styles.list} key={aType} onPress={() => {
+          setType(aType)
+          navigation.navigate('Varietal')
+      }}>
+          <Text style={styles.listText}>{aType}</Text>
+        </Pressable>
+      )
+    })
+
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+        <Text style={styles.mainText}>Choose Your Type</Text>
+        <Text>{"\n"}</Text>
+        <View>{types}</View>
+        </ScrollView>
+      </View>
+    )
+  }
+
+  function VarietalScreen({ navigation }) {
+
+    let varietalList = []
+
+    const typedVarietal = allWine.map(item => {
+      if ((item.type = type) && (!varietalList.includes(item.grape))) {
+          varietalList.push(item.grape)
+        }
+    })
+
+    const varietals = varietalList.map(aVarietal => {
+      return (
+        <Pressable style={styles.list} key={aVarietal} onPress={() => {
+          setVarietal(aVarietal)
+          navigation.navigate('Region')
+      }}>
+          <Text style={styles.listText}>{aVarietal}</Text>
+        </Pressable>
+      )
+    })
+
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+        <Text style={styles.mainText}>Choose Your Varietal</Text>
+        <Text>{"\n"}</Text>
+        <View>{varietals}</View>
+        </ScrollView>
+      </View>
+    )
+  }
+
+  function RegionScreen({ navigation }) {
+
+    let regionList = []
+
+    const allRegion = allWine.map(item => {
+      if ((item.type = type) && (item.varietal = varietal) && (!regionList.includes(item.country))) {
+          regionList.push(item.country) 
+        }
+    })
+
+    const regions = regionList.map(aRegion => {
+      return (
+        <Pressable style={styles.list} key={aRegion} onPress={() => {
+          setRegion(aRegion)
+          navigation.navigate('Name')
+      }}>
+          <Text style={styles.listText}>{aRegion}</Text>
+        </Pressable>
+      )
+    })
+
+    // console.log(type, varietal, region)
+
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+        <Text style={styles.mainText}>Choose Your Region</Text>
+        <Text>{"\n"}</Text>
+        <View>{regions}</View>
+        </ScrollView>
+      </View>
+    )
+  }
+
+  function ResultScreen({ navigation }) {
+
+    let nameList = []
+
+    const allName = allWine.map(item => {
+      if ((item.type = type) && (item.varietal = varietal) && (item.region = region) && (!nameList.includes(item.name))) {
+          nameList.push(item.name) 
+        }
+    })
+
+    const names = nameList.map(name => {
+
+      return (
+        <Pressable style={styles.list} key={`${name}1`} onPress={() => {
+          navigation.navigate('Recommendation')
+          getRecomm(name)
+          console.log(recomm)
+        }}>
+          <Text style={styles.listText}>{name}</Text>
+        </Pressable>
+      )
+    })
+
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+        <Text style={styles.mainText}>Choose Your Wine</Text>
+        <Text>{"\n"}</Text>
+        <View>{names}</View>
+        </ScrollView>
+      </View>
+    )
+  }
+
+  function RecommendationScreen({ navigation }) {
+
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+          <View style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <Image source={{ uri: `${recomm.label}` }} style={styles.img} />
+          </View>
+          <Text>{"\n"}</Text>
+          <Text style={styles.title}>{recomm.name}</Text>
+          <Text style={styles.subTitle}>$ {recomm.price}</Text>
+          <Text style={styles.tinyText}>{recomm.grape} from {recomm.country}</Text>
+          <Text>{"\n"}</Text>
+          <Pressable onPress={() => Linking.openURL(`${recomm.link}`)} style={styles.list}>
+            <Text style={styles.listText}>Buy This</Text>
+          </Pressable>
+          <Pressable onPress={() => handleFaveToggle(recomm.id)} style={styles.list}>
+            <Text style={styles.listText}><Ionicons name={fav.includes(recomm.id) ? 'ios-star' : 'ios-star-outline'} size={20} color='#fff'/></Text>
+          </Pressable>
+          <View style = {styles.divider} />
+        </ScrollView>
       </View>
     );
   }
@@ -244,6 +423,7 @@ export default function App() {
           </View>
           <Text>{"\n"}</Text>
           <Text style={styles.title}>{wine.name}</Text>
+          <Text style={styles.subTitle}>$ {wine.price}</Text>
           <Text style={styles.tinyText}>{wine.grape} from {wine.country}</Text>
           {/* <Pressable style={styles.list} onPress={() => {
             const winemakerkey = wine.winemaker.id
@@ -267,17 +447,50 @@ export default function App() {
     );
   }
   
+  const HomeStack = createNativeStackNavigator();
   const WineStack = createNativeStackNavigator();
   const WinemakerStack = createNativeStackNavigator();
   const FavoriteStack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
+
+  function HomeStackScreen() {
+ 
+    return (
+      <HomeStack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#E56B6F',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+      }}>
+        <HomeStack.Screen name="Journal Des Vin" component={HomeScreen} options={{ title: 'Journal Des Vin'}}/>
+        <HomeStack.Screen name="Type" component={TypeScreen} options={{ title: 'Type', headerBackTitleVisible: false }}/>
+        <HomeStack.Screen name="Varietal" component={VarietalScreen} options={{ title: 'Varietal', headerBackTitleVisible: false }}/>
+        <HomeStack.Screen name="Region" component={RegionScreen} options={{ title: 'Region', headerBackTitleVisible: false }}/>
+        <HomeStack.Screen name="Name" component={ResultScreen} options={{ title: 'Wines', headerBackTitleVisible: false }}/>
+        <HomeStack.Screen name="Recommendation" component={RecommendationScreen} options={{ title: 'Recommendation', headerBackTitleVisible: false }}/>
+      </HomeStack.Navigator>
+    );
+  }
   
   function WineStackScreen() {
  
     return (
-      <WineStack.Navigator>
-        <WineStack.Screen name="Wine List" component={WineScreen} />
-        <WineStack.Screen name="Wine Details" component={WineDetailsScreen} />
+      <WineStack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#E56B6F',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+      }}>
+        <WineStack.Screen name="Wine List" component={WineScreen} options={{ title: 'List'}}/>
+        <WineStack.Screen name="Wine Details" component={WineDetailsScreen} options={{ title: 'Detail', headerBackTitleVisible: false }}/>
       </WineStack.Navigator>
     );
   }
@@ -285,9 +498,18 @@ export default function App() {
   function WinemakerStackScreen() {
  
     return (
-      <WinemakerStack.Navigator>
-        <WinemakerStack.Screen name="Winemaker List" component={WinemakerScreen} />
-        <WinemakerStack.Screen name="Winemaker Details" component={WinemakerDetailsScreen} />
+      <WinemakerStack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#E56B6F',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+      }}>
+        <WinemakerStack.Screen name="Winemaker List" component={WinemakerScreen} options={{ title: 'List' }}/>
+        <WinemakerStack.Screen name="Winemaker Details" component={WinemakerDetailsScreen} options={{ title: 'Detail', headerBackTitleVisible: false }}/>
       </WinemakerStack.Navigator>
     );
   }
@@ -295,16 +517,23 @@ export default function App() {
   function FavoriteStackScreen() {
  
     return (
-      <FavoriteStack.Navigator>
-        <FavoriteStack.Screen name="Favorite List" component={FavoriteScreen} />
-        <FavoriteStack.Screen name="Favorite Details" component={FavoriteDetailsScreen} />
+      <FavoriteStack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#E56B6F',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+      }}>
+        <FavoriteStack.Screen name="Favorite List" component={FavoriteScreen} options={{ title: 'List' }}/>
+        <FavoriteStack.Screen name="Favorite Details" component={FavoriteDetailsScreen} options={{ title: 'Detail', headerBackTitleVisible: false }}/>
       </FavoriteStack.Navigator>
     );
   }
 
   return (
-    
-    // <ion-icon name="home-outline"></ion-icon>
 
     <NavigationContainer>
       <Tab.Navigator
@@ -324,11 +553,11 @@ export default function App() {
             }
             return <Ionicons name={iconName} size={size} color={color} />;
           },
-          tabBarActiveTintColor: '#A26769',
+          tabBarActiveTintColor: '#E56B6F',
           tabBarInactiveTintColor: '#888',
         })}
       >
-        <Tab.Screen name="Home" component={HomeStackScreen} />
+        <Tab.Screen name="Home" component={HomeStackScreen} options={{ title: 'Home'}} />
         <Tab.Screen name="Wine" component={WineStackScreen} />
         <Tab.Screen name="Winemaker" component={WinemakerStackScreen} />
         <Tab.Screen name="Favorite" component={FavoriteStackScreen} />
@@ -337,18 +566,18 @@ export default function App() {
   );
 }
 
-// '#6D2E46' , '#A26769' , '#D5B9B2' , '#ECE2D0'
+// colors: '#355070' , '#6D597A' , '#B56576' , '#E56B6F' , '#EAAC8B'
 
 const styles = StyleSheet.create({
   container: {
     paddingTop: 50,
     flex: 1,
-    backgroundColor: '#6D2E46',
+    backgroundColor: '#6D597A',
     justifyContent: 'center',
     alignItems: 'center',
   },
   list: {
-    backgroundColor: '#6D2E46',
+    backgroundColor: '#6D597A',
     borderWidth: 0.75,
     borderColor: '#FFF',
     marginBottom: 10,
@@ -368,7 +597,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
   },
   landingTitle: {
-    fontSize: 80,
+    fontSize: 65,
     fontWeight: "800",
     color: '#FFF',
   },
@@ -384,17 +613,19 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   subTitle: {
-    fontSize: 30,
-    color: '#ECE2D0',
-    fontWeight: "500",
+    fontSize: 20,
+    color: '#EAAC8B',
+    fontWeight: "700",
     textAlign: "center",
+    paddingTop: 10,
   },
   tinyText: {
     fontSize: 17,
     color: '#FFF',
     fontWeight: "300",
     margin: 20,
-    letterSpacing: 2,
+    letterSpacing: 1.1,
+    textAlign: "center",
   },
   img: { 
     width: 250,
