@@ -27,12 +27,12 @@ This is a wine cellar on your phone. It displays the whole list from the databas
 
 ## Models
 
-####Backend
+#### Backend
 
 - Winemaker
 - Wine
 
-####Frontend
+#### Frontend
 
 - App.js
 - Home / Wine (List + Details) / WineMaker (List + Detail) / Favorite (List + Detail)
